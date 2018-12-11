@@ -1,6 +1,6 @@
-﻿# ----------------------------------------------------------------------------------------------------------------------
+﻿# -----------------------------------------------------------------------------------------------------------------
 # Set-TimeTracker
-# ----------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------
 
 <#
 .Synopsis
@@ -29,6 +29,8 @@
   System.IO.FileInfo
 
   Returns a FileInfo object for the resolved path if you specify -PassThru
+.Link
+  Get-TimeTracker
 .Notes
   Author: endowdly@gmail.com
   FileEncoding: UTF8-BOM
@@ -45,11 +47,17 @@ function Set-TimeTracker {
         # Return the FileInfo Object of the new TimeTracker File
         [Parameter()]
         [switch]
-        $PassThru
-    )
+        $PassThru)
 
     begin {
         $TimeTrackerProperties = 'WorkDuration', 'LunchDuration', 'Tracker'
+        $CanUpdate = 
+            if ($PSCmdlet.ShouldProcess("Internal TimeTrackerPath <- $Validated")) {
+                $true
+            }
+            else {
+                $false
+            }
 
         # Pass the resolved Path if it is valid
         filter Confirm-TimeTrackerPath {
@@ -84,8 +92,10 @@ function Set-TimeTracker {
         }
 
         # Set the module Variable 'TimeTrackerPath' to the input Path
-        filter Update-TimeTracker {
-            $script:TimeTrackerPath = $_
+        filter Update-Path {
+            if ($CanUpdate) {
+                $script:TimeTrackerPath = $_
+            }
 
             if ($PassThru) {
                 [System.IO.FileInfo] $_
@@ -94,15 +104,11 @@ function Set-TimeTracker {
     }
 
     process {
-        $Validated =
-            $Path |
-                Confirm-TimeTrackerPath |
-                Confirm-TimeTrackerFile |
-                Convert-Path
-
-        if ($PSCmdlet.ShouldProcess("Internal TimeTrackerPath <- $Validated")) {
-            $Validated | Update-TimeTracker
-        }
+        $Path |
+            Confirm-TimeTrackerPath |
+            Confirm-TimeTrackerFile |
+            Convert-Path |
+            Update-Path 
     }
 
     end {

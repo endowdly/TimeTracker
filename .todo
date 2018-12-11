@@ -3,10 +3,17 @@
 Write:
     ✔ New-TimeTracker @started(18-12-03 12:54) @done(18-12-03 14:44) @lasted(1h50m51s)
     ✔ Set-TimeTracker @started(18-12-04 11:43) @done(18-12-04 14:39) @lasted(2h56m32s)
-    ☐ Get-TimeTracker
-    ☐ Add-StartTime
+    ✔ Get-TimeTracker @started(18-12-07 08:24) @done(18-12-07 13:52) @lasted(5h28m7s)
+    ✘ Add-StartTime @started(18-12-07 09:32) @cancelled(18-12-08 13:56) @wasted(1d4h24m32s)
         -- Private
-    ☐ Add-StopTime
+    ✘ Add-StopTime @started(18-12-08 13:49) @cancelled(18-12-08 13:56) @wasted(7m34s)
         -- Private
-    ☐ Update-TimeTracker
+    ✔ Set-TimeEntry @started(18-12-09 09:20) @done(18-12-09 11:32) @lasted(2h12m5s)
+        -- Private
+        -- Combine Add-Start- and StopTime
+    ✔ Update-TimeTracker @started(18-12-09 17:45) @done(18-12-09 18:15) @lasted(30m47s)
     ☐ Invoke-TimeTracker 
+Improve:
+    ☐ Add Stop* Validation to Set-TimeEntry
+    ✔ Edit Set-TimeEntry -- Remove Hardcoded add times. @started(18-12-10 11:01) @done(18-12-10 11:21) @lasted(20m26s)
+    ✔ Edit Set-TimeEntry @started(18-12-10 07:52) @done(18-12-10 09:52) @lasted(2h21s)

@@ -1,6 +1,6 @@
-﻿# ----------------------------------------------------------------------------------------------------------------------
+﻿# -----------------------------------------------------------------------------------------------------------------
 # New-TimeTracker
-# ----------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------
 
 <#
 .Synopsis
@@ -44,7 +44,7 @@
 #>
 function New-TimeTracker {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]  # Handled by the wrapped Command
-    [CmdletBinding(DefaultParameterSetName = 'NameSet',
+    [CmdletBinding(DefaultParameterSetName = 'PathSet',
                    SupportsShouldProcess,
                    ConfirmImpact = 'Medium')]
     [OutputType([System.IO.FileInfo])]
@@ -78,8 +78,7 @@ function New-TimeTracker {
         [Parameter(ParameterSetName = 'NameSet', Position = 3, ValueFromPipelineByPropertyName)]
         [ValidateRange(0.0, 24.0)]
         [System.Double]
-        $LunchDuration = 0.5
-    )
+        $LunchDuration = 0.5)
 
     begin {
         $TimeTracker = @{
