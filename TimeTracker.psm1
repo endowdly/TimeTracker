@@ -50,7 +50,7 @@ $Current = @{
     StopLunch     = New-Object DateTime
     WorkDayLength = New-TimeSpan
 }
-$Reports = New-Object System.Collections.Stack
+$Reports = New-Object System.Collections.Queue
 $TimeTracker = @{
     Current        = $Current.Clone() 
     OffTime        = $OffTime.Clone()
@@ -81,8 +81,9 @@ function Set-OffTimeDuration ($dt) { $Offtime.Duration = $OffTime.LastPause - $d
 function Get-TotalTime {
     $workTime = $Current.StopTime - $Current.StartTime
     $lunchTime = $Current.StopLunch - $Current.StartLunch
+    $excessLunch = $lunchTime - (New-TimeSpan -Minutes $TimeTracker.LunchMinutes)
 
-    ($workTime + $lunchTime - $OffTime.Duration)
+    $workTime - ($OffTime.Duration + $excessLunch)
 }
 function Get-OverTime {
     $isOver = (TotalTime).TotalMinutes -gt $Current.WorkDay.TotalMinutes
@@ -114,9 +115,13 @@ function Get-LunchLength { $Current.StopLunch - $Current.StartLunch }
 function Get-Duration { (Date) - $OffTime.LastPause }
 
 
-function Write-Report {
+function Push-Log ($f, $s) {
+    $Reports.Enqueue($f -f $s)
+}
+
+function Write-Log {
     while ($Reports.Count -gt 0) { 
-        Write-Host $Reports.Pop()
+        Write-Host $Reports.Dequeue()
     } 
 }
 

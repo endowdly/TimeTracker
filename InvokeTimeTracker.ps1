@@ -39,7 +39,7 @@ function Invoke-TimeTracker {
 
         $Current.WorkDayLength = $WorkDayLength                                                             
 
-        $Reports.Push($Resources.InvokeTimeTracker.Information.SettingWorkDay -f $WorkDayLength.TotalHours)
+        Push-Log $Resources.InvokeTimeTracker.Information.SettingWorkDay $WorkDayLength.TotalHours 
     } 
 
     switch ($PSBoundParameters.Keys) {
@@ -50,7 +50,7 @@ function Invoke-TimeTracker {
 
                 $Current.StartTime = $StartTime 
 
-                $Reports.Push($Resources.InvokeTimeTracker.Information.ProjectedStop -f (ProjectedStop))
+                Push-Log $Resources.InvokeTimeTracker.Information.ProjectedStop (ProjectedStop)
             } 
         }
         StopTime {
@@ -65,14 +65,14 @@ function Invoke-TimeTracker {
 
                 $Current.StartLunch = $StartLunch
 
-                $Reports.Push($Resources.InvokeTimeTracker.Information.ProjectedLunch -f (ProjectedLunch))
+                Push-Log $Resources.InvokeTimeTracker.Information.ProjectedLunch (ProjectedLunch)
             }
         }
         StopLunch {
             if (Assert-StartLunch) {
                 $Current.StopLunch = $StopLunch
 
-                $Reports.Push($Resources.InvokeTimeTracker.Information.LunchLength -f (LunchLength).TotalHours)
+                Push-Log $Resources.InvokeTimeTracker.Information.LunchLength (LunchLength).TotalHours
             } 
         } 
         Pause {
@@ -82,14 +82,14 @@ function Invoke-TimeTracker {
 
                 $OffTime.LastPause = Get-Date 
 
-                $Reports.Push($Resources.InvokeTimeTracker.Information.Pause -f $OffTime.LastPause)
+                Push-Log $Resources.InvokeTimeTracker.Information.Pause $OffTime.LastPause
             } 
         }
         Play {
             if (Assert-LastPause) {
                 $OffTime.Duration = Duration 
 
-                $Reports.Push($Resources.InvokeTimeTracker.Information.Play -f $OffTime.Duration.TotalHours) 
+                Push-Log $Resources.InvokeTimeTracker.Information.Play $OffTime.Duration.TotalHours
             }
         }
         WorkDayLength {
@@ -99,7 +99,7 @@ function Invoke-TimeTracker {
 
                 $Current.WorkDayLength = $WorkDayLength                                                             
 
-                $Reports.Push($Resources.InvokeTimeTracker.Information.SettingWorkDay -f $WorkDayLength.TotalHours)
+                Push-Log $Resources.InvokeTimeTracker.Information.SettingWorkDay $WorkDayLength.TotalHours
             } 
         }
         default {
@@ -117,13 +117,17 @@ function Invoke-TimeTracker {
 
         $timeObj | Export-Csv -Path $Path -Append -Encoding UTF8
 
-        $Reports.Push($Resources.InvokeTimeTracker.Information.Total -f $timeObj.TotalTime)
+        Push-Log $Resources.InvokeTimeTracker.Information.Total $timeObj.TotalTime
+
+        if (($timeObj.OverTime -as [double]) -gt 0.0) {
+            Push-Log $Resources.InvokeTimeTracker.Information.Over $timeObj.OverTime
+        }
 
         Reset-Time 
     } 
 
     if (-not $Silent) {
-        Write-Report
+        Write-Log
     } 
 
     if ($PassThru) {

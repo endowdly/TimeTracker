@@ -1,0 +1,5 @@
+TimeTracker:
+    ✔ Fix time algorithim @done(19-12-18 09:16)
+Invoke-TimeTracker:
+    ☐ Change `-Pause` and `-Resume`
+        -- Switch -> DateTime
