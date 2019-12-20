@@ -30,7 +30,7 @@
             LunchLength    = 'Lunch length: {0:0.0}'
             Pause          = 'Paused at: {0:HHmm}'
             Play           = 'Pause duration length: {0:0.0}'
-            SettingWorkDay = 'Setting work day to length of: {0:.0.0}'
+            SettingWorkDay = 'Setting work day to length of: {0:0.0}'
             Over           = 'Overtime: {0:0.0}'
             Total          = 'Total time: {0:0.0}'
         }

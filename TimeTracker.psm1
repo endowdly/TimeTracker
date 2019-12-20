@@ -55,6 +55,7 @@ $TimeTracker = @{
     Current        = $Current.Clone() 
     OffTime        = $OffTime.Clone()
     WorkDayMinutes = ($Config.WorkLength + $Config.LunchLength) * 60
+    LunchHours     = $ConfigFile.LunchLength
     LunchMinutes   = $Config.LunchLength * 60
     TrackerPath    = 
         if (!$Config.TrackerPath) {
@@ -71,22 +72,21 @@ Set-Variable TimeTracker -Option ReadOnly
 
 #region Module Functions ------------------------------------------------------------------------------------------
 
-
-function Set-StartTime ($dt) { $Current.StartTime = $dt }
-function Set-StopTime ($dt) { $Current.StopTime = $dt }
-function Set-StartLunch ($dt) { $Current.StartLunch = $dt } 
-function Set-StopLunch ($dt) { $Current.StopLunch = $dt } 
-function Set-OffTimePause ($dt) { $OffTime.LastPause = $dt }
-function Set-OffTimeDuration ($dt) { $Offtime.Duration = $OffTime.LastPause - $dt }
 function Get-TotalTime {
-    $workTime = $Current.StopTime - $Current.StartTime
-    $lunchTime = $Current.StopLunch - $Current.StartLunch
-    $excessLunch = $lunchTime - (New-TimeSpan -Minutes $TimeTracker.LunchMinutes)
+    $grossTime = $Current.StopTime - $Current.StartTime
+    $isNonWorkTime = ((LunchLengthExcess) + $OffTime.Duration) -gt 0
+    $nonWorkTime =
+        if ($isNonWorkTime) {
+            (LunchLengthExcess + $OffTime.Duration)
+        }
+        else {
+            New-TimeSpan
+        }
 
-    $workTime - ($OffTime.Duration + $excessLunch)
+    $grossTime - $nonWorkTime
 }
 function Get-OverTime {
-    $isOver = (TotalTime).TotalMinutes -gt $Current.WorkDay.TotalMinutes
+    $isOver = (TotalTime).TotalMinutes -gt $Current.WorkDayLength.TotalMinutes
 
     if ($isOver) {
         (TotalTime) - (New-TimeSpan -Minutes $TimeTracker.WorkDayMinutes)
@@ -109,10 +109,11 @@ function Get-CurrentTime {
     } 
 }
 
-function Get-ProjectedStop { $Current.StartTime + (New-TimeSpan -Minutes $TimeTracker.WorkDayMinutes) } 
-function Get-ProjectedLunch { $Current.StartLunch + (New-TimeSpan -Minutes $TimeTracker.LunchMinutes) } 
+function Get-ProjectedStop { $Current.StartTime.AddHours($Current.WorkDayLength.TotalHours) } 
+function Get-ProjectedLunch { $Current.StartLunch.AddMinutes($TimeTracker.LunchMinutes) } 
 function Get-LunchLength { $Current.StopLunch - $Current.StartLunch } 
-function Get-Duration { (Date) - $OffTime.LastPause }
+function Get-LunchLengthExcess { (LunchLength) - (New-TimeSpan -Minutes $TimeTracker.LunchMinutes) }
+function Get-PauseDuration { (Date) - $OffTime.LastPause }
 
 
 function Push-Log ($f, $s) {

@@ -87,7 +87,7 @@ function Invoke-TimeTracker {
         }
         Play {
             if (Assert-LastPause) {
-                $OffTime.Duration = Duration 
+                $OffTime.Duration += PauseDuration 
 
                 Push-Log $Resources.InvokeTimeTracker.Information.Play $OffTime.Duration.TotalHours
             }
